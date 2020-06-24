@@ -33,8 +33,21 @@ def setOfWords2Vec(vocabList,inputSet):
 postingList, classVec = loadDataSet()
 vocabList = createVocabList(postingList)
 
-print(vocabList)
-print(setOfWords2Vec(vocabList,postingList[0]))
+#词袋模型 
+def bagOfWords2Vec(vocabList,inputSet):
+    returnVec = [0] * len(vocabList)
+    for word in inputSet:
+        if word in vocabList:
+            returnVec[vocabList.index(word)] += 1
+        else:
+            print("the word:%s is not in my vocabLis!" % word)
+    return returnVec
+
+postingList, classVec = loadDataSet()
+vocabList = createVocabList(postingList)
+
+#print(vocabList)
+#print(setOfWords2Vec(vocabList,postingList[0]))
 
 #朴素贝叶斯分类器训练函数
 def trainNBO(trainMatrix,trainGategory):
@@ -94,4 +107,27 @@ def testNB():
     testVec = array(setOfWords2Vec(vocabList, testEntry))
     print(testEntry, 'classified as: ', classifyNB(testVec, p0v, p1v, pAb))
 
-testNB()
+#testNB()
+#垃圾邮件分类
+#使用正则表达式切分文本为列表 \W 匹配字母数字下划线汉字
+import re
+regEx = re.compile(r'\b[\.,\s\n\r\n]+?\b')
+mySent='this book is the best book on python or ML. I have ever laid eyes upon'
+listOfTokens = regEx.split(mySent)
+listOfTokens = [tok.lower() for tok in listOfTokens]
+
+emailTest = open('/home/pi/mlpractice/machinelearninginaction/Ch04/email/ham/6.txt',encoding='ISO-8859-14').read()
+listOfTokens = regEx.split(emailTest)
+#print(listOfTokens)
+#文本解析及完整的垃圾邮件测试函数
+def textParse(bigString):
+    import re
+    listOfTokens = re.split(r'\b[\.,\s\n\r\n]+?\b',bigString)
+    return [tok.lower() for tok in listOfTokens if len(tok) > 2]
+#print(textParse(emailTest))
+def spamTest():
+    docList=[]; classList = []; fullText = []
+    for i in range(1,26):
+        wordList = open('/home/pi/mlpractice/machinelearninginaction/Ch04/email/spam/%d.txt' % i,encoding='ISO-8859-14').read()
+        docList.append(wordList)
+        
