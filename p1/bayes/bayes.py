@@ -128,6 +128,38 @@ def textParse(bigString):
 def spamTest():
     docList=[]; classList = []; fullText = []
     for i in range(1,26):
-        wordList = open('/home/pi/mlpractice/machinelearninginaction/Ch04/email/spam/%d.txt' % i,encoding='ISO-8859-14').read()
+        #垃圾邮件
+        wordList = textParse(open('/home/pi/mlpractice/machinelearninginaction/Ch04/email/spam/%d.txt' % i,encoding='ISO-8859-14').read())
+        #print(docList)
         docList.append(wordList)
+        fullText.extend(wordList)
+        classList.append(1)
         
+        #正常邮件
+        wordList = textParse(open('/home/pi/mlpractice/machinelearninginaction/Ch04/email/ham/%d.txt' % i,encoding='ISO-8859-14').read())
+        docList.append(wordList)
+        fullText.extend(wordList)
+        classList.append(0)
+    vocabList = createVocabList(docList)
+    trainingSet = list(range(50));testSet = [] #训练集50个 随机选10个作为测试集
+    for i in range(10):
+        randIdx = int(random.uniform(0,len(trainingSet)))
+        testSet.append(trainingSet[randIdx])
+        del(trainingSet[randIdx])
+    trainMat=[];trainingClasses=[]
+    for docIdx in trainingSet:
+        trainMat.append(setOfWords2Vec(vocabList,docList[docIdx]))
+        trainingClasses.append(classList[docIdx])
+    #print(trainMat)
+   # print(array(trainMat))
+    p0v,p1v,pSpam=trainNBO(array(trainMat),array(trainingClasses))
+    errorCnt=0
+    for docIdx in testSet:
+        wordVector = setOfWords2Vec(vocabList,docList[docIdx])
+        if classifyNB(wordVector,p0v,p1v,pSpam) != classList[docIdx]:
+            errorCnt+=1
+            print('classify error',docList[docIdx])
+    print('the error rate is :',float(errorCnt/len(testSet)))
+    
+spamTest()
+    
