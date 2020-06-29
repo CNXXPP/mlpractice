@@ -101,8 +101,8 @@ def classifyNB(vec2Classify,p0v,p1v,pclass1):
 
 def testNB():
     testEntry = ['love','my','dalmation']
-    testVec = array(setOfWords2Vec(vocabList,testEntry))
-    print(testEntry,'classified as: ',classifyNB(testVec,p0v,p1v,pAb))
+    testVec = array(setOfWords2Vec(vocabList, testEntry))
+    print(testEntry,'classified as: ', classifyNB(testVec,p0v,p1v,pAb))
     testEntry = ['stupid', 'garbage']
     testVec = array(setOfWords2Vec(vocabList, testEntry))
     print(testEntry, 'classified as: ', classifyNB(testVec, p0v, p1v, pAb))
