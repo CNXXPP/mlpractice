@@ -56,3 +56,13 @@ def plotBestFit(wei):
     plt.show()
 print(weights)
 plotBestFit(weights)
+
+
+# 随机梯度上升算法
+def stocGradAscent0(dataMatIn,classLabels):
+    m, n = shape(dataMatIn)
+    alpha = 0.01
+    weights = ones(n)
+    for i in range(m):
+        h = sigmoid(dataMatIn[i] * weights)  # m * 3  3 * 1 [1 1 1]^
+        error = (classLabels[i] - h)
