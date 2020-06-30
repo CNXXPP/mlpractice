@@ -161,5 +161,62 @@ def spamTest():
             print('classify error',docList[docIdx])
     print('the error rate is :',float(errorCnt/len(testSet)))
     
-spamTest()
+#spamTest()
     
+#从个人广告中获取区域倾向
+import feedparser
+
+#ny = feedparser.parse('https://www.nasa.gov/rss/dyn/image_of_the_day.rss')
+#print(len(ny['entries']))
+# rss源分类器及高频词去除函数
+def calcMostFreq(vocabList,fullText):
+    import operator
+    freqDict = {}
+    for token in vocabList:
+        freqDict[token] = fullText.count(token)
+    sortedFreq = sorted(freqDict.items(),key=operator.itemgetter(1),reverse=True)
+    return sortedFreq[:30]
+
+def localWords(feed1,feed2):
+    docList=[];classList=[];fullText=[]
+    minLen = min(len(feed1['entries']),len(feed2['entries']))
+    for i in range(minLen):
+        wordList = textParse(feed1['entries'][i]['summary'])
+        docList.append(wordList)
+        fullText.extend(wordList)
+        classList.append(1)
+        
+        wordList = textParse(feed2['entries'][i]['summary'])
+        docList.append(wordList)
+        fullText.extend(wordList)
+        classList.append(0)
+    vocabList = createVocabList(docList)
+    #top30Words = calcMostFreq(vocabList,fullText)
+    #for pairW in top30Words:
+        # pairW = {'word':3} 移除出现频率最高的30个词
+    #    if pairW[0] in vocabList:vocabList.remove(pairW[0])
+    trainingSet = list(range(2*minLen));testSet=[]
+    for i in range(20):
+        randIdx = int(random.uniform(0,len(trainingSet)))
+        testSet.append(trainingSet[randIdx])
+        del(trainingSet[randIdx])
+    trainMat=[];trainingClasses=[]
+    for docIdx in trainingSet:
+        trainMat.append(bagOfWords2Vec(vocabList,docList[docIdx]))
+        trainingClasses.append(classList[docIdx])
+    p0v,p1v,pSpam=trainNBO(array(trainMat),array(trainingClasses))
+    errorCnt=0
+    for docIdx in testSet:
+        wordVector = setOfWords2Vec(vocabList,docList[docIdx])
+        if classifyNB(wordVector,p0v,p1v,pSpam) != classList[docIdx]:
+            errorCnt+=1
+            print('classify error',docList[docIdx])
+    print('the error rate is :',float(errorCnt/len(testSet)))
+    return vocabList,p0v,p1v
+
+feed1 = feedparser.parse('https://www.nasa.gov/rss/dyn/image_of_the_day.rss')
+feed2 = feedparser.parse('http://www.cppblog.com/kevinlynx/category/6337.html/rss')
+print(len(feed1['entries']))
+print(len(feed2['entries']))
+
+localWords(feed1,feed2)
